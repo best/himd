@@ -10,30 +10,43 @@ import (
 const VERSION = "0.0.1"
 
 var (
-	help   bool
-	url    string
-	thread int
+	help   bool   // 命令行帮助
+	url    string // 下载链接
+	thread int    // 下载并发数
 )
 
+// init 对程序所需flag信息进行初始化定义
 func init() {
+	// 定义flag参数
 	flag.BoolVar(&help, "h", false, "command line help")
-	flag.StringVar(&url, "u", "", "set download `url`, must format as [http/https]://target.url")
+	flag.StringVar(&url, "u", "", "set download `url`, must format as [https/http/ftp]://target.url")
 	flag.IntVar(&thread, "t", runtime.NumCPU(), "set downloader `thread`, default is number of logical CPUs")
 
+	// 重写使用帮助参数
 	flag.Usage = func() {
-		_, _ = fmt.Fprintf(os.Stderr, `himd version: himd/`+VERSION+`
+		// 打印版本号及用法
+		_, _ = fmt.Fprintf(os.Stderr, `Himd version: himd/`+VERSION+`
 Usage: himd [-u url] [-t thread]
 
 Options:
 `)
+
+		// 打印默认用法
 		flag.PrintDefaults()
 	}
 }
 
+// main 主程序入口，接收命令行参数作为输入
 func main() {
+	// 解析flag参数
 	flag.Parse()
 
+	// 如果解析到了-h参数，打印用法
 	if help {
 		flag.Usage()
+		return
 	}
+
+	// 检查输入参数是否符合要求
+	verifyFlag(url, thread)
 }
